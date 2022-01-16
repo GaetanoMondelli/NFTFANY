@@ -1,0 +1,23 @@
+{
+    "artificialDelayMilliseconds": 300,
+    "keepExistingTerminalsOpen": false,
+    "runOnStartup": true,
+    "terminals": [
+      {
+        "splitTerminals": [
+          {
+            "name": "chain",
+            "commands": ["yarn chain"]
+          },
+          {
+            "name": "artifacts",
+            "commands": ["yarn upload", "yarn deploy"]
+          },
+          {
+            "name": "webapp",
+            "commands": ["yarn start"]
+          }
+        ]
+      }
+    ]
+  }
