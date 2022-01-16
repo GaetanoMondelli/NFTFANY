@@ -12,15 +12,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
-contract YourCollectible is ERC721 {
+contract YourCollectible is ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
     constructor(bytes32[] memory assetsForSale)
-        public
-        ERC721("YourCollectible", "YCB")
+        ERC721("NFTFANY/MAKERGENESIS", "NTFMG")
     {
-        // _setBaseURI("https://ipfs.io/ipfs/");
         for (uint256 i = 0; i < assetsForSale.length; i++) {
             forSale[assetsForSale[i]] = true;
             forSecondarySale[assetsForSale[i]] = false;
@@ -41,8 +39,8 @@ contract YourCollectible is ERC721 {
     //this lets you look up a token by the uri (assuming there is only one of each uri for now)
     mapping(bytes32 => uint256) public uriToTokenId;
 
-    function mintItem(string memory tokenURI) public payable returns (uint256) {
-        bytes32 uriHash = keccak256(abi.encodePacked(tokenURI));
+    function mintItem(string memory mintTokenURI) public payable returns (uint256) {
+        bytes32 uriHash = keccak256(abi.encodePacked(mintTokenURI));
 
         //make sure they are only minting something that is marked "forsale"
         require(forSale[uriHash], "ALREADY MINTED");
@@ -52,7 +50,6 @@ contract YourCollectible is ERC721 {
 
         uint256 id = _tokenIds.current();
         _mint(msg.sender, id);
-        //   _setTokenURI(id, tokenURI);
 
         uriToTokenId[uriHash] = id;
 
@@ -60,8 +57,8 @@ contract YourCollectible is ERC721 {
         return id;
     }
 
-    function sellItem(string memory tokenURI) public returns (uint256) {
-        bytes32 uriHash = keccak256(abi.encodePacked(tokenURI));
+    function sellItem(string memory sellTokenURI) public returns (uint256) {
+        bytes32 uriHash = keccak256(abi.encodePacked(sellTokenURI));
 
         require(!forSecondarySale[uriHash], "ALREADY FOR SECONDARY SALE");
         forSecondarySale[uriHash] = true;
@@ -72,8 +69,8 @@ contract YourCollectible is ERC721 {
         return id;
     }
 
-    function cancelSellItem(string memory tokenURI) public returns (uint256) {
-        bytes32 uriHash = keccak256(abi.encodePacked(tokenURI));
+    function cancelSellItem(string memory cancelTokenURI) public returns (uint256) {
+        bytes32 uriHash = keccak256(abi.encodePacked(cancelTokenURI));
 
         require(forSecondarySale[uriHash], "NOT FOR SECONDARY SALE");
         forSecondarySale[uriHash] = false;
@@ -84,8 +81,8 @@ contract YourCollectible is ERC721 {
         return id;
     }
 
-    function buyItem(string memory tokenURI) public payable returns (uint256) {
-        bytes32 uriHash = keccak256(abi.encodePacked(tokenURI));
+    function buyItem(string memory buyTokenURI) public payable returns (uint256) {
+        bytes32 uriHash = keccak256(abi.encodePacked(buyTokenURI));
 
         require(forSecondarySale[uriHash], "NOT FOR SECONDARY SALE");
         forSecondarySale[uriHash] = false;
@@ -97,5 +94,21 @@ contract YourCollectible is ERC721 {
         itemOwner.transfer(price);
 
         return id;
+    }
+
+    function _burn(uint256 tokenId)
+        internal
+        override(ERC721, ERC721URIStorage)
+    {
+        super._burn(tokenId);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
     }
 }
