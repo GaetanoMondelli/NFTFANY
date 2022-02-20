@@ -24,6 +24,8 @@ import assets from './assets.js'
 import '@google/model-viewer';
 
 
+import Wormhole from './components/Pages/Wormhole'
+
 const { BufferList } = require('bl')
 // https://www.npmjs.com/package/ipfs-http-client
 const ipfsAPI = require('ipfs-http-client');
@@ -189,8 +191,9 @@ function App(props) {
   //
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
   //
-  const yourBalance = balance && balance.toNumber && balance.toNumber()
-  const [yourCollectibles, setYourCollectibles] = useState()
+  const yourBalance = balance && balance.toNumber && balance.toNumber();
+  const [yourCollectibles, setYourCollectibles] = useState();
+  const [wormhole, setWormhole] = useState();
 
   useEffect(() => {
     const updateYourCollectibles = async () => {
@@ -220,6 +223,18 @@ function App(props) {
     }
     updateYourCollectibles()
   }, [address, yourBalance])
+
+
+  useEffect(() => {
+    const wormhole = readContracts?.Wormhole;
+    if(readContracts?.Wormhole && readContracts?.MAKERGENESIS){
+      setWormhole(wormhole);
+      // tx(writeContracts.Wormhole.publishMessage() )
+
+    }
+
+  })
+
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -419,8 +434,9 @@ function App(props) {
         </model-viewer>
       </div>
 
-      Ciao
+      
 
+      <Wormhole tokenBridgeAddress={wormhole?.address} signer={scaffoldEthProvider.getSigner()} tokenAddress={yourCollectibles?.address}></Wormhole>
 
       <BrowserRouter>
 
@@ -528,7 +544,7 @@ function App(props) {
                         address={item[0]}
                         ensProvider={mainnetProvider}
                         fontSize={16}
-                      /> =>
+                      />
                       <Address
                         address={item[1]}
                         ensProvider={mainnetProvider}
@@ -550,7 +566,7 @@ function App(props) {
                         address={item[0]}
                         ensProvider={mainnetProvider}
                         fontSize={16}
-                      /> =>
+                      />
                       {item[2]}
                     </List.Item>
                   )
