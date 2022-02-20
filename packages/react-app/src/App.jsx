@@ -419,7 +419,7 @@ function App(props) {
         </model-viewer>
       </div>
 
-
+      Ciao
 
 
       <BrowserRouter>
@@ -623,6 +623,13 @@ function App(props) {
           <Route path="/debugcontracts">
             <Contract
               name="MAKERGENESIS"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+            <Contract
+              name="Wormhole"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}

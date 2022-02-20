@@ -5,7 +5,7 @@ const bre = require("hardhat");
 const publishDir = "../react-app/src/contracts";
 const graphDir = "../subgraph"
 
-function publishContract(contractName) {
+function publishContract(path="", contractName) {
   console.log(
     " 💽 Publishing",
     chalk.cyan(contractName),
@@ -14,7 +14,7 @@ function publishContract(contractName) {
   );
   try {
     let contract = fs
-      .readFileSync(`${bre.config.paths.artifacts}/contracts/${contractName}.sol/${contractName}.json`)
+      .readFileSync(`${bre.config.paths.artifacts}/contracts${path}/${contractName}.sol/${contractName}.json`)
       .toString();
     const address = fs
       .readFileSync(`${bre.config.paths.artifacts}/${contractName}.address`)
@@ -68,6 +68,7 @@ function publishContract(contractName) {
   } catch (e) {
     if(e.toString().indexOf("no such file or directory")>=0){
       console.log(chalk.yellow(" ⚠️  Can't publish "+contractName+" yet (make sure it getting deployed)."))
+      console.log(`${bre.config.paths.artifacts}/contracts/${contractName}.sol/${contractName}.json`)
     }else{
       console.log(e);
       return false;
@@ -84,7 +85,16 @@ async function main() {
     if (file.indexOf(".sol") >= 0) {
       const contractName = file.replace(".sol", "");
       // Add contract to list if publishing is successful
-      if (publishContract(contractName)) {
+      if (publishContract("", contractName)) {
+        finalContractList.push(contractName);
+      }
+    }
+  });
+  fs.readdirSync(`${bre.config.paths.sources}/wormhole`).forEach((file) => {
+    if (file.indexOf(".sol") >= 0) {
+      const contractName = file.replace(".sol", "");
+      // Add contract to list if publishing is successful
+      if (publishContract('/wormhole', contractName)) {
         finalContractList.push(contractName);
       }
     }
