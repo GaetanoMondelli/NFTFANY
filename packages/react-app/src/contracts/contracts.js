@@ -1,1 +1,1 @@
-module.exports = ["MAKERGENESIS","Implementation","Setup","Wormhole"];
+module.exports = ["GMZ"];

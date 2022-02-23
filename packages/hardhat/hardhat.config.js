@@ -21,7 +21,9 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+// const defaultNetwork = "localhost";
+const defaultNetwork = "goerli";
+
 
 function mnemonic() {
   try {
@@ -57,6 +59,14 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
+    testnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: {
+        mnemonic: mnemonic(),
+      }
+    },
     kovan: {
       url: "https://kovan.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
@@ -77,6 +87,8 @@ module.exports = {
     },
     goerli: {
       url: "https://goerli.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
+      gas: 2100000,
+      gasPrice: 8000000000,
       accounts: {
         mnemonic: mnemonic(),
       },

@@ -68,7 +68,8 @@ function publishContract(path="", contractName) {
   } catch (e) {
     if(e.toString().indexOf("no such file or directory")>=0){
       console.log(chalk.yellow(" ⚠️  Can't publish "+contractName+" yet (make sure it getting deployed)."))
-      console.log(`${bre.config.paths.artifacts}/contracts/${contractName}.sol/${contractName}.json`)
+      console.log(chalk.yellow(`${bre.config.paths.artifacts}/contracts${path}/${contractName}.sol/${contractName}.json`))
+      console.log(chalk.yellow(e.toString()))
     }else{
       console.log(e);
       return false;
@@ -90,15 +91,15 @@ async function main() {
       }
     }
   });
-  fs.readdirSync(`${bre.config.paths.sources}/wormhole`).forEach((file) => {
-    if (file.indexOf(".sol") >= 0) {
-      const contractName = file.replace(".sol", "");
-      // Add contract to list if publishing is successful
-      if (publishContract('/wormhole', contractName)) {
-        finalContractList.push(contractName);
-      }
-    }
-  });
+  // fs.readdirSync(`${bre.config.paths.sources}/wormhole`).forEach((file) => {
+  //   if (file.indexOf(".sol") >= 0) {
+  //     const contractName = file.replace(".sol", "");
+  //     // Add contract to list if publishing is successful
+  //     if (publishContract('/wormhole', contractName)) {
+  //       finalContractList.push(contractName);
+  //     }
+  //   }
+  // });
   fs.writeFileSync(
     `${publishDir}/contracts.js`,
     `module.exports = ${JSON.stringify(finalContractList)};`

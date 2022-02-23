@@ -23,6 +23,79 @@ import assets from './assets.js'
 
 import '@google/model-viewer';
 
+import * as IMPLEMENTATION_ABI from './contracts/Implementation.abi'
+
+const WM_ABI = [
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "setup",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "initData",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "previousAdmin",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "AdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beacon",
+        "type": "address"
+      }
+    ],
+    "name": "BeaconUpgraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "Upgraded",
+    "type": "event"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "fallback"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
+  }
+];
 
 import Wormhole from './components/Pages/Wormhole'
 
@@ -58,7 +131,9 @@ console.log("📦 Assets: ", assets)
 
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+// const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['goerli']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+
 
 // 😬 Sorry for all the console logging
 const DEBUG = true
@@ -177,61 +252,78 @@ function App(props) {
 
 
   // keep track of a variable from the contract in the local React state:
-  const balance = useContractReader(readContracts, "MAKERGENESIS", "balanceOf", [address])
-  console.log("🤗 balance:", balance)
+  const balance = useContractReader(readContracts, "GMZ", "balanceOf", [address])
+  console.log("🤗 balance:", readContracts)
 
-  //📟 Listen for broadcast events
-  const transferEvents = useEventListener(readContracts, "MAKERGENESIS", "Transfer", localProvider, 1);
-  console.log("📟 Transfer events:", transferEvents)
 
-  const actionEvents = useEventListener(readContracts, "MAKERGENESIS", "Action", localProvider, 1);
+  const wmTokenBridge = useExternalContractLoader(localProvider, "0x706abc4E45D419950511e474C7B9Ed348A4a716c", IMPLEMENTATION_ABI)
+  console.log("🤗 balance:", wmTokenBridge)
 
-  const totalPrice = useContractReader(readContracts, "MAKERGENESIS", "price")
+  const chainId = useContractReader({ Wormhole: wmTokenBridge }, "Wormhole", "chainId", []);
+  console.log("🤗 chainId:", chainId)
+
+  
+
+  // //📟 Listen for broadcast events
+  // const transferEvents = useEventListener(readContracts, "MAKERGENESIS", "Transfer", localProvider, 1);
+  // console.log("📟 Transfer events:", transferEvents)
+
+  // const actionEvents = useEventListener(readContracts, "MAKERGENESIS", "Action", localProvider, 1);
+
+  // const totalPrice = useContractReader(readContracts, "MAKERGENESIS", "price")
+
+
+  // const totalGmzGoerliTokens = useContractReader(readContracts, "GMZ", "balanceOf", [address])
 
   //
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
   //
-  const yourBalance = balance && balance.toNumber && balance.toNumber();
+  const yourBalance = balance?.toString() //&& balance.toNumber && balance.toNumber();
   const [yourCollectibles, setYourCollectibles] = useState();
   const [wormhole, setWormhole] = useState();
+  const [gmztoken, setYourGmzToken] = useState();
+
+
+  // useEffect(() => {
+  //   const updateYourCollectibles = async () => {
+  //     let collectibleUpdate = []
+  //     for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
+  //       try {
+  //         console.log("GEtting token index", tokenIndex)
+  //         const tokenId = await readContracts.MAKERGENESIS.tokenOfOwnerByIndex(address, tokenIndex)
+  //         console.log("tokenId", tokenId)
+  //         const tokenURI = await readContracts.MAKERGENESIS.tokenURI(tokenId)
+  //         console.log("tokenURI", tokenURI)
+
+  //         const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "")
+  //         console.log("ipfsHash", ipfsHash)
+
+  //         const jsonManifestBuffer = await getFromIPFS(ipfsHash)
+
+  //         try {
+  //           const jsonManifest = JSON.parse(jsonManifestBuffer.toString())
+  //           console.log("jsonManifest", jsonManifest)
+  //           collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest })
+  //         } catch (e) { console.log(e) }
+
+  //       } catch (e) { console.log(e) }
+  //     }
+  //     setYourCollectibles(collectibleUpdate)
+  //   }
+  //   updateYourCollectibles()
+  // }, [address, yourBalance])
+
 
   useEffect(() => {
-    const updateYourCollectibles = async () => {
-      let collectibleUpdate = []
-      for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
-        try {
-          console.log("GEtting token index", tokenIndex)
-          const tokenId = await readContracts.MAKERGENESIS.tokenOfOwnerByIndex(address, tokenIndex)
-          console.log("tokenId", tokenId)
-          const tokenURI = await readContracts.MAKERGENESIS.tokenURI(tokenId)
-          console.log("tokenURI", tokenURI)
-
-          const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "")
-          console.log("ipfsHash", ipfsHash)
-
-          const jsonManifestBuffer = await getFromIPFS(ipfsHash)
-
-          try {
-            const jsonManifest = JSON.parse(jsonManifestBuffer.toString())
-            console.log("jsonManifest", jsonManifest)
-            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest })
-          } catch (e) { console.log(e) }
-
-        } catch (e) { console.log(e) }
-      }
-      setYourCollectibles(collectibleUpdate)
+    const gmztoken = readContracts?.GMZ;
+    if (gmztoken) {
+      setYourGmzToken(gmztoken);
     }
-    updateYourCollectibles()
-  }, [address, yourBalance])
-
-
-  useEffect(() => {
-    const wormhole = readContracts?.Wormhole;
-    if(readContracts?.Wormhole && readContracts?.MAKERGENESIS){
-      setWormhole(wormhole);
-      // tx(writeContracts.Wormhole.publishMessage() )
-
-    }
+    // if (wmTokenBridge) {
+    //   wmTokenBridge.chainId().then(() => {
+    //     chainId => setWormhole(chainId);
+    //   })
+    // }
 
   })
 
@@ -314,25 +406,25 @@ function App(props) {
   const [transferToAddresses, setTransferToAddresses] = useState({})
 
   const [loadedAssets, setLoadedAssets] = useState()
-  useEffect(() => {
-    const updateYourCollectibles = async () => {
-      let assetUpdate = []
-      for (let a in assets) {
-        try {
-          const forSale = await readContracts.MAKERGENESIS.forSale(utils.id(a))
-          const forSecondarySale = await readContracts.MAKERGENESIS.forSecondarySale(utils.id(a))
-          let owner
-          if (!forSale) {
-            const tokenId = await readContracts.MAKERGENESIS.uriToTokenId(utils.id(a))
-            owner = await readContracts.MAKERGENESIS.ownerOf(tokenId)
-          }
-          assetUpdate.push({ id: a, ...assets[a], forSale: forSale, forSecondarySale: forSecondarySale, owner: owner })
-        } catch (e) { console.log(e) }
-      }
-      setLoadedAssets(assetUpdate)
-    }
-    if (readContracts && readContracts.MAKERGENESIS) updateYourCollectibles()
-  }, [assets, readContracts, transferEvents, actionEvents]);
+  // useEffect(() => {
+  //   const updateYourCollectibles = async () => {
+  //     let assetUpdate = []
+  //     for (let a in assets) {
+  //       try {
+  //         const forSale = await readContracts.MAKERGENESIS.forSale(utils.id(a))
+  //         const forSecondarySale = await readContracts.MAKERGENESIS.forSecondarySale(utils.id(a))
+  //         let owner
+  //         if (!forSale) {
+  //           const tokenId = await readContracts.MAKERGENESIS.uriToTokenId(utils.id(a))
+  //           owner = await readContracts.MAKERGENESIS.ownerOf(tokenId)
+  //         }
+  //         assetUpdate.push({ id: a, ...assets[a], forSale: forSale, forSecondarySale: forSecondarySale, owner: owner })
+  //       } catch (e) { console.log(e) }
+  //     }
+  //     setLoadedAssets(assetUpdate)
+  //   }
+  //   if (readContracts && readContracts.MAKERGENESIS) updateYourCollectibles()
+  // }, [assets, readContracts, transferEvents, actionEvents]);
 
   let galleryList = []
   for (let a in loadedAssets) {
@@ -342,14 +434,14 @@ function App(props) {
 
     if (loadedAssets[a].forSale) {
       cardActions.push(
-        <div>
-          <Button onClick={() => {
-            console.log("gasPrice,", gasPrice)
-            tx(writeContracts.MAKERGENESIS.mintItem(loadedAssets[a].id, { value: totalPrice }))
-          }}>
-            Mint
-          </Button>
-        </div>
+        // <div>
+        //   <Button onClick={() => {
+        //     console.log("gasPrice,", gasPrice)
+        //     tx(writeContracts.MAKERGENESIS.mintItem(loadedAssets[a].id, { value: totalPrice }))
+        //   }}>
+        //     Mint
+        //   </Button>
+        // </div>
       )
 
     } else {
@@ -384,11 +476,11 @@ function App(props) {
       }
       else if (loadedAssets[a].forSecondarySale) {
         cardActions.push(
-          <Button onClick={() => {
-            tx(writeContracts.MAKERGENESIS.buyItem(loadedAssets[a].id, { value: totalPrice }))
-          }}>
-            Buy
-          </Button>
+          // <Button onClick={() => {
+          //   tx(writeContracts.MAKERGENESIS.buyItem(loadedAssets[a].id, { value: totalPrice }))
+          // }}>
+          //   Buy
+          // </Button>
         )
       }
       else {
@@ -434,11 +526,31 @@ function App(props) {
         </model-viewer>
       </div>
 
-      
 
-      <Wormhole tokenBridgeAddress={wormhole?.address} signer={scaffoldEthProvider.getSigner()} tokenAddress={yourCollectibles?.address}></Wormhole>
 
-      <BrowserRouter>
+
+      Ciao {JSON.stringify(readContracts?.MAKERGENESIS?.address)}
+      <br></br>
+      {address}
+      <br />
+      {/* Ciao 2 {localProvider.getSigner(address)} */}
+      {/* Wm chain Id  {wormhole} */}
+      <br />
+      {address ? <Wormhole signer={localProvider.getSigner(address)} tokenAddress={gmztoken?.address}></Wormhole> : null}
+
+
+      Wormhole token {gmztoken?.address}
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+
+      {/* <BrowserRouter>
 
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
@@ -463,11 +575,11 @@ function App(props) {
 
         <Switch>
           <Route exact path="/">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
+          //  {
+          //      🎛 this scaffolding is full of commonly used components
+          //      this <Contract/> component will automatically parse your ABI
+          //      and give you a form to interact with it locally
+          //  }
 
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
               <h1>Price {totalPrice && formatEther(totalPrice)} Ξ</h1>
@@ -653,7 +765,7 @@ function App(props) {
             />
           </Route>
         </Switch>
-      </BrowserRouter>
+      </BrowserRouter> */}
 
       <ThemeSwitch />
 
