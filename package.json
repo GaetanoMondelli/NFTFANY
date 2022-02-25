@@ -65,5 +65,9 @@
   "dependencies": {
     "react-stack-grid": "^0.7.1",
     "@ethereumjs/vm": "^5.5.1"
+  },
+  "resolutions": {
+    "//": "See https://github.com/facebook/create-react-app/issues/11773",
+    "react-error-overlay": "6.0.9"
   }
 }

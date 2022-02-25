@@ -30,6 +30,12 @@ export const NETWORKS = {
         blockExplorer: '',
         rpcUrl: "http://" + window.location.hostname + ":8545",
     },
+    binanceTestnet: {
+        name: "binanceTestnet",
+        rpcUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
+        chainId: 97,
+        gasPrice: 20000000000,
+    },
     mainnet: {
         name: "mainnet",
         color: '#ff8b9e',

@@ -28,6 +28,7 @@
     "@ethersproject/units": "^5.0.6",
     "@google/model-viewer": "^1.10.1",
     "@improbable-eng/grpc-web-node-http-transport": "^0.15.0",
+    "@metamask/detect-provider": "^1.2.0",
     "@ramp-network/ramp-instant-sdk": "^2.2.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",

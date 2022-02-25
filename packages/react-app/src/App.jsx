@@ -133,6 +133,8 @@ console.log("📦 Assets: ", assets)
 /// 📡 What chain are your contracts deployed to?
 // const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 const targetNetwork = NETWORKS['goerli']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+// const targetNetwork = NETWORKS['ropsten']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+// const targetNetwork = NETWORKS['binanceTestnet']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 
 // 😬 Sorry for all the console logging
@@ -536,7 +538,7 @@ function App(props) {
       {/* Ciao 2 {localProvider.getSigner(address)} */}
       {/* Wm chain Id  {wormhole} */}
       <br />
-      {address ? <Wormhole signer={localProvider.getSigner(address)} tokenAddress={gmztoken?.address}></Wormhole> : null}
+      {address ? <Wormhole signer={localProvider.getSigner(address)} address={address} tokenAddress={gmztoken?.address}></Wormhole> : null}
 
 
       Wormhole token {gmztoken?.address}
